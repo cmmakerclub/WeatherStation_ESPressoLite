@@ -33,7 +33,7 @@ const char* password = "espertap";
 
 DHT *dht;
 
-const int sleepTimeS = 30;
+const int sleepTimeS = 300;
 
 void connectWifi();
 void reconnectWifiIfLinkDown();
