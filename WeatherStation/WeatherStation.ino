@@ -9,23 +9,23 @@
 ESPert espert;
 
 #ifndef WIFI_SSID
-#define WIFI_SSID       "@ESPertAP_001" // "@ESPertAP_001"
-#define WIFI_PASSPHRASE "espertap"  // espertap
+#define WIFI_SSID       "Apirak_RMUTL" 
+#define WIFI_PASSPHRASE "rmutlqwerty"  
 #endif
 
-const int sleepTimeS = 10; // 30 = 30นาที
+const int sleepTimeS = 300; // 300 = 30นาที
 
 WiFiConnector wifi(WIFI_SSID, WIFI_PASSPHRASE);
 
 void init_hardware()
 {
+  espert.init();
+  espert.dht.init();
+  espert.oled.init();
+  delay(2000);
   Serial.begin(115200);
   WiFi.disconnect(true);
   delay(1000);
-  Serial.flush();
-  Serial.println();
-  Serial.println();
-  Serial.println("will be started in 500ms..");
 }
 
 void init_wifi() {
@@ -59,14 +59,13 @@ void doHttpGet() {
     espert.oled.println("   Weather Station ");
     espert.oled.println("");
     espert.oled.println(dht);
-    espert.oled.println("  Bavensky.github.io");
+    espert.oled.println("RMUTLlanna.github.io");
     espert.oled.update();
-
     espert.println(dht);
   }
 
   Serial.print("[HTTP] begin...\n");
-  http.begin("http://api.thingspeak.com/update?api_key=QVLUV8I946J3TG6Z&field1=" + String(t) + "&field2=" + String(h)); //HTTP
+  http.begin("http://api.thingspeak.com/update?api_key=WZ5K3ETH85H9WWXZ&field1=" + String(t) + "&field2=" + String(h)); //HTTP
   int httpCode = http.GET();
 
   // httpCode will be negative on error
@@ -89,15 +88,8 @@ void doHttpGet() {
 
 void setup()
 {
-  delay(2000);
-  espert.init();
-  espert.dht.init();
-  espert.oled.init();
-  delay(2000);
-
   init_hardware();
   init_wifi();
-
   wifi.connect();
 }
 
@@ -106,10 +98,12 @@ void loop()
   wifi.loop();
   if (wifi.connected()) {
     doHttpGet();
-    delay(3000);
+    delay(5000);
     espert.oled.clear();
     espert.oled.println("  Sleep (- -)zzZ");
     espert.oled.update();
+    delay(3000);
+    espert.oled.clear();
     ESP.deepSleep(sleepTimeS * 6000000);
   }
 }
