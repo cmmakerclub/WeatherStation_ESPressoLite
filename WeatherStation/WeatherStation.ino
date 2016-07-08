@@ -13,7 +13,9 @@ ESPert espert;
 #define WIFI_PASSPHRASE "rmutlqwerty"
 #endif
 
+int wificount = 0;
 const int sleepTimeS = 300; // 300 = 30นาที
+
 
 WiFiConnector wifi(WIFI_SSID, WIFI_PASSPHRASE);
 
@@ -38,6 +40,11 @@ void init_wifi() {
     Serial.print("Connecting to ");
     Serial.println(wifi.get("ssid") + ", " + wifi.get("password"));
     delay(200);
+    if (wificount >= 10) {    // if can't connect wifi, this board is sleep 30 minute
+      espert.oled.clear();
+      ESP.deepSleep(sleepTimeS * 6000000);
+      wificount = 0;
+    }
   });
 }
 
@@ -121,6 +128,7 @@ void loop() {
       espert.oled.update();
       espert.println(dht);
       delay(5000);
+      wificount += 1;
     }
   }
 }
