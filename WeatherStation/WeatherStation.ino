@@ -9,16 +9,15 @@
 ESPert espert;
 
 #ifndef WIFI_SSID
-#define WIFI_SSID       "Apirak_RMUTL" 
-#define WIFI_PASSPHRASE "rmutlqwerty"  
+#define WIFI_SSID       "Apirak_RMUTL"
+#define WIFI_PASSPHRASE "rmutlqwerty"
 #endif
 
 const int sleepTimeS = 300; // 300 = 30นาที
 
 WiFiConnector wifi(WIFI_SSID, WIFI_PASSPHRASE);
 
-void init_hardware()
-{
+void init_hardware()  {
   espert.init();
   espert.dht.init();
   espert.oled.init();
@@ -30,14 +29,12 @@ void init_hardware()
 
 void init_wifi() {
   wifi.init();
-  wifi.on_connected([&](const void* message)
-  {
+  wifi.on_connected([&](const void* message)  {
     Serial.print("WIFI CONNECTED WITH IP: ");
     Serial.println(WiFi.localIP());
   });
 
-  wifi.on_connecting([&](const void* message)
-  {
+  wifi.on_connecting([&](const void* message) {
     Serial.print("Connecting to ");
     Serial.println(wifi.get("ssid") + ", " + wifi.get("password"));
     delay(200);
@@ -54,7 +51,6 @@ void doHttpGet() {
   if (!isnan(t) && !isnan(h)) {
     String dht = "Temperature: " + String(t) + (isFarenheit ?  " F" : " C") + "\n";
     dht += " Humidity   : " + String(h) + " %\n";
-
     espert.oled.clear();
     espert.oled.println("   Weather Station ");
     espert.oled.println("");
@@ -86,17 +82,22 @@ void doHttpGet() {
   http.end();
 }
 
-void setup()
-{
+void setup()  {
   init_hardware();
   init_wifi();
   wifi.connect();
 }
 
-void loop()
-{
+void loop() {
   wifi.loop();
   if (wifi.connected()) {
+    espert.oled.clear();
+    espert.oled.println("   Weather Station ");
+    espert.oled.println("");
+    espert.oled.println("");
+    espert.oled.println("  Wifi is connected!");
+    espert.oled.update();
+    delay(2000);
     doHttpGet();
     delay(5000);
     espert.oled.clear();
@@ -104,7 +105,23 @@ void loop()
     espert.oled.update();
     delay(3000);
     espert.oled.clear();
-    ESP.deepSleep(sleepTimeS * 6000000);
+    ESP.deepSleep(sleepTimeS * 6000000);  //  Sleep mode 30 minute
+  } else {
+    bool isFarenheit = false;
+    float t = espert.dht.getTemperature(isFarenheit);
+    float h = espert.dht.getHumidity();
+    if (!isnan(t) && !isnan(h)) {
+      String dht = "Temperature: " + String(t) + (isFarenheit ?  " F" : " C") + "\n";
+      dht += " Humidity   : " + String(h) + " %\n";
+      espert.oled.clear();
+      espert.oled.println("   Weather Station ");
+      espert.oled.println("");
+      espert.oled.println(dht);
+      espert.oled.println("Wifi is not connect !");
+      espert.oled.update();
+      espert.println(dht);
+      delay(5000);
+    }
   }
 }
 
